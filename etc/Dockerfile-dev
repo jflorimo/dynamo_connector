@@ -33,9 +33,6 @@ RUN apt-get update \
     && rm -rf /var/lib/apt/lists/* \
     && python3 -m venv /venv/
 
-RUN groupadd -g 1000 -o app && \
-    useradd -r -u 1000 -g app --create-home -s /sbin/nologin -c "App user" app_user
-
 COPY --from=builder /venv/ /venv/
 COPY start.sh /
 RUN chmod +x /start.sh \
@@ -43,7 +40,9 @@ RUN chmod +x /start.sh \
 
 WORKDIR /app/src/
 
-USER app_user
-ENV PATH="/home/app_user/.local/bin:${PATH}"
+ENV USER django
+RUN useradd --create-home $USER
+RUN chown -R $USER /start.sh /venv/ /app/
+USER $USER
 
 CMD ["/start.sh"]
