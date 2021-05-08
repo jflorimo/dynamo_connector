@@ -1,0 +1,49 @@
+FROM python:3.7.4-slim-buster AS builder
+
+ENV PYTHONUNBUFFERED 1
+ENV PATH=/venv/bin/:$PATH
+
+RUN apt-get update \
+    && apt-get upgrade -y \
+    && apt-get install -y --no-install-recommends \
+       gcc \
+       git \
+       libmagic-dev \
+       openssh-client \
+       python-dev \
+    && rm -rf /var/lib/apt/lists/* \
+    && python3 -m venv /venv/
+
+# Install dependencies
+COPY requirements.txt /etc/requirements.txt
+RUN pip3 install --no-cache-dir -r /etc/requirements.txt
+
+
+FROM python:3.7.4-slim-buster
+
+ENV PYTHONUNBUFFERED 1
+ENV PATH=/venv/bin/:$PATH
+
+RUN apt-get update \
+    && apt-get upgrade -y \
+    && apt-get install -y --no-install-recommends \
+       gettext \
+       iproute2 \
+       libmagic-dev \
+    && rm -rf /var/lib/apt/lists/* \
+    && python3 -m venv /venv/
+
+RUN groupadd -g 1000 -o app && \
+    useradd -r -u 1000 -g app --create-home -s /sbin/nologin -c "App user" app_user
+
+COPY --from=builder /venv/ /venv/
+COPY start.sh /
+RUN chmod +x /start.sh \
+    && mkdir -p /app/src /app/aux
+
+WORKDIR /app/src/
+
+USER app_user
+ENV PATH="/home/app_user/.local/bin:${PATH}"
+
+CMD ["/start.sh"]

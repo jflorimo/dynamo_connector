@@ -1,0 +1,14 @@
+version: '2'
+
+services:
+  django:
+    restart: unless-stopped
+    build:
+      context: .
+      dockerfile: Dockerfile-dev
+    ports:
+      - "80:4000"
+    volumes:
+      - ../:/app/
+    env_file:
+      - ../.env
