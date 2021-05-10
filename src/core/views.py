@@ -3,7 +3,7 @@ from rest_framework import viewsets
 from rest_framework import permissions
 from rest_framework.views import APIView
 from rest_framework.response import Response
-from .dynamo_connector import Connector
+from dynamodb import Connector
 
 
 from .models import Booking
@@ -34,8 +34,9 @@ class Debug(APIView):
     permission_classes = []
 
     def get(self, request, format=None):
-        print("YOLO")
         dynamo = Connector()
-        table = dynamo.create()
-
-        return Response({"test": table.table_status})
+        # booking_by_user = dynamo.create_table(
+        #     Booking, table_name="BookingByUser", partition_key="id", sort_key="user"
+        # )
+        response = {"table_list": [x.name for x in dynamo.db.tables.all()]}
+        return Response(response)

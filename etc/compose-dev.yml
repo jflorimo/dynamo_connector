@@ -10,6 +10,7 @@ services:
       - "8042:8000"
     env_file:
       - ../.env
+    command: ["-jar", "DynamoDBLocal.jar", "-sharedDb", "-inMemory"]
 
   django:
     restart: unless-stopped
