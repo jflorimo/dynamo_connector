@@ -1,6 +1,16 @@
 version: '2'
 
 services:
+  dynamo:
+    restart: unless-stopped
+    image: amazon/dynamodb-local:1.16.0
+    hostname: dynamodb-local
+    container_name: dynamodb-local
+    ports:
+      - "8042:8000"
+    env_file:
+      - ../.env
+
   django:
     restart: unless-stopped
     build:
@@ -10,5 +20,9 @@ services:
       - "80:4000"
     volumes:
       - ../:/app/
+    depends_on:
+      - dynamo
+    links:
+      - "dynamo:db"
     env_file:
       - ../.env

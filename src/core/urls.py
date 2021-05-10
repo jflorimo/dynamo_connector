@@ -25,4 +25,5 @@ urlpatterns = [
     path("booking/", booking_list, name="booking-list"),
     path("booking/<int:pk>/", booking_detail, name="booking-detail"),
     path("booking/<int:pk>/highlight/", booking_highlight, name="booking-highlight"),
+    path("debug/", views.Debug.as_view()),
 ]

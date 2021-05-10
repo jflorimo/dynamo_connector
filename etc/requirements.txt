@@ -2,3 +2,4 @@ black
 django
 djangorestframework
 django-environ
+boto3
