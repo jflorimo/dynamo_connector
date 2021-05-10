@@ -1,8 +1,11 @@
 import boto3
+from django.forms.models import model_to_dict
+
 from project.settings import env
 from .services import (
     get_field_name_list,
     get_dynamodb_attribute_type,
+    convert_all_values_for_dynamo,
 )
 
 
@@ -55,11 +58,11 @@ class Connector:
     def select(self):
         return
 
-    def insert(self, table_name, **data):
+    def insert(self, table_name, instance):
         table = self.db.Table(table_name)
-        item = {**data}
-        print(f"DATA: {item}")
-        response = table.put_item(Item=item)
+        data = model_to_dict(instance)
+        data = convert_all_values_for_dynamo(data)
+        response = table.put_item(Item={**data})
         return response
 
     def update(self):

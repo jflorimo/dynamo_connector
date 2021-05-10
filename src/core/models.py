@@ -3,7 +3,6 @@ from django.contrib.auth.models import User
 from django.db import models
 from dynamodb import Connector
 from dynamodb.services import convert_all_values_for_dynamo
-from django.forms.models import model_to_dict
 import copy as c
 
 
@@ -27,12 +26,9 @@ class Booking(models.Model):
 
         if self.pk is not None:
             print(f"UPDATE BOOKING: {self.__dict__}")
-            data = model_to_dict(self)
-            data = convert_all_values_for_dynamo(data)
-            super().save(*args, **data)
+            # TODO update here
+            super().save(*args, **kwargs)
         else:
             super().save(*args, **kwargs)
             print(f"CREATE BOOKING: {self.__dict__}")
-            data = model_to_dict(self)
-            data = convert_all_values_for_dynamo(data)
-            db.insert("BookingByUser", **data)
+            insert = db.insert("BookingByUser", self)
