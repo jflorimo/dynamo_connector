@@ -3,7 +3,6 @@ from project.settings import env
 from .services import (
     get_field_name_list,
     get_dynamodb_attribute_type,
-    format_attribute_definitions_list,
 )
 
 
@@ -23,12 +22,6 @@ class Connector:
         #     aws_access_key_id=env.str("AWS_ACCESS_KEY_ID"),
         #     aws_secret_access_key=env.str("AWS_SECRET_ACCESS_KEY"),
         # )
-        for x in self.db.tables.all():
-            print(x)
-
-    # @property
-    # def db(self):
-    #     return self.db
 
     def create_table(self, model, *, table_name, partition_key, sort_key):
 
@@ -57,13 +50,17 @@ class Connector:
             ],
             ProvisionedThroughput={"ReadCapacityUnits": 10, "WriteCapacityUnits": 10},
         )
-        return "table"
+        return table
 
     def select(self):
         return
 
-    def insert(self):
-        return
+    def insert(self, table_name, **data):
+        table = self.db.Table(table_name)
+        item = {**data}
+        print(f"DATA: {item}")
+        response = table.put_item(Item=item)
+        return response
 
     def update(self):
         return
