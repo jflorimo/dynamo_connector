@@ -35,8 +35,8 @@ class Booking(DynamoCompatibleModel):
         :param data_dict: dynamo result dict
         :return: Booking instance
         """
-        self.id = data_dict["id"]
-        self.user = User(**{"id": data_dict["user"]})
+        self.id = int(data_dict["id"])
+        self.user = User(**{"id": int(data_dict["user"])})
         self.date_at = datetime.fromtimestamp(data_dict["date_at"])
         self.date_for = datetime.fromtimestamp(data_dict["date_for"])
         self.name = data_dict["name"]
@@ -44,6 +44,11 @@ class Booking(DynamoCompatibleModel):
         return self
 
     def __convert_id_to_dynamo_key_list__(self, django_id):
+        """
+        Convert django instance to dynamo partition and sort key
+        :param django_id: django model id
+        :return: [(partition_key, value), (sort_key, value)]
+        """
         instance = Booking.objects.get(id=django_id)
         user_key = self.partition_key, instance.user.id
         date_for_key = self.sort_key, convert_value_for_dynamo(instance.date_for)

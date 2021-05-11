@@ -43,15 +43,7 @@ class Debug(APIView):
 
     def get(self, request, format=None):
         dynamo = Connector(Booking)
-        # booking_by_user = dynamo.create_table(
-        #     Booking, table_name="BookingIdByUser", partition_key="id", sort_key="user"
-        # )
-        # dynamo.create_table(
-        #     Booking, table_name="BookingUserByDateFor", partition_key="user", sort_key="date_for"
-        # )
-        # dynamo.delete([("user", 1), ("date_for", 1620728015)])
         elem = dynamo.get([("user", 1), ("date_for", 1620746545)])
-
         response = {
             "table_list": [x.name for x in dynamo.db.tables.all()],
             "values": dynamo.all(),
