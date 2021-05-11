@@ -1,17 +1,16 @@
 import boto3
 from boto3.dynamodb.conditions import Key
-from django.forms.models import model_to_dict
 
 from project.settings import env
 from .services import (
     get_field_name_list,
     get_dynamodb_attribute_type,
-    convert_all_values_for_dynamo,
+    convert_django_for_dynamo,
 )
 
 
 class Connector:
-    def __init__(self, model=None):
+    def __init__(self, model_class=None):
         self.db = boto3.resource(
             "dynamodb",
             endpoint_url="http://db:8000",
@@ -20,9 +19,9 @@ class Connector:
             aws_secret_access_key=env.str("AWS_SECRET_ACCESS_KEY"),
             region_name=env.str("AWS_REGION"),
         )
-        self.model = model
-        if model.table_name:
-            self.table_name = model.table_name
+        self.model = model_class
+        if model_class.table_name:
+            self.table_name = model_class.table_name
             self.table = self.db.Table(self.table_name)
         else:
             self.table_name = None
@@ -47,11 +46,15 @@ class Connector:
             AttributeDefinitions=[
                 {
                     "AttributeName": partition_key,
-                    "AttributeType": get_dynamodb_attribute_type(self.model, partition_key),
+                    "AttributeType": get_dynamodb_attribute_type(
+                        self.model, partition_key
+                    ),
                 },
                 {
                     "AttributeName": sort_key,
-                    "AttributeType": get_dynamodb_attribute_type(self.model, partition_key),
+                    "AttributeType": get_dynamodb_attribute_type(
+                        self.model, partition_key
+                    ),
                 },
             ],
             ProvisionedThroughput={"ReadCapacityUnits": 10, "WriteCapacityUnits": 10},
@@ -62,7 +65,6 @@ class Connector:
         """
         :param key_tuple_list: key and values list [(key, value), ]
         """
-        table = self.table
         if not key_tuple_list:
             return {}
 
@@ -74,7 +76,7 @@ class Connector:
         ) in key_tuple_list:  # if remaining key conditions expressions add them
             expr = expr & Key(key).eq(value)
 
-        response = table.query(KeyConditionExpression=expr)
+        response = self.table.query(KeyConditionExpression=expr)
         return response["Items"]
 
     def all(self):
@@ -84,10 +86,8 @@ class Connector:
         """
         :param instance is Django model instance
         """
-        table = self.table
-        data = model_to_dict(instance)
-        data = convert_all_values_for_dynamo(data)
-        return table.put_item(Item={**data})
+        data = convert_django_for_dynamo(instance)
+        return self.table.put_item(Item={**data})
 
     def update(self, instance):
         """
@@ -99,7 +99,6 @@ class Connector:
         """
         :param key_tuple_list: key and values list [(key, value), ]
         """
-        table = self.table
         if not key_tuple_list:
             return
-        return table.delete_item(Key=dict(key_tuple_list))
+        return self.table.delete_item(Key=dict(key_tuple_list))

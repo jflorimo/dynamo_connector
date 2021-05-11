@@ -8,15 +8,13 @@ class DynamoCompatibleModel(models.Model):
     class Meta:
         abstract = True
 
-    dynamo = "chips"
-
     def __init__(self, *args, **kwargs):
         super(DynamoCompatibleModel, self).__init__(*args, **kwargs)
-        print("init")
+        print("DynamoCompatibleModel __init__")
 
     def save(self, *args, **kwargs):
         super().save(*args, **kwargs)
-        Connector().insert(self.table_name, self)
+        Connector(self.__class__).insert(self)
 
 
 class Booking(DynamoCompatibleModel):
@@ -33,5 +31,3 @@ class Booking(DynamoCompatibleModel):
 
     def __str__(self):
         return f"{self.user} - for {self.date_for} at: {self.address}"
-
-

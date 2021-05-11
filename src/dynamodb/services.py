@@ -1,5 +1,6 @@
 from datetime import datetime
 from decimal import Decimal
+from django.forms.models import model_to_dict
 from .constants import DATA_TYPE
 
 
@@ -40,7 +41,8 @@ def convert_value_for_dynamo(value):
     return value
 
 
-def convert_all_values_for_dynamo(dict_values):
+def convert_django_for_dynamo(instance):
+    dict_values = model_to_dict(instance)
     for key, value in dict_values.items():
         dict_values[key] = convert_value_for_dynamo(value)
     return dict_values
