@@ -29,5 +29,13 @@ class Booking(DynamoCompatibleModel):
     sort_key = "date_for"
     table_name = "BookingUserByDateFor"
 
+    def __from_dynamo__(self, data_dict):
+        self.user = User(**{"id": data_dict["user"]})
+        self.date_at = datetime.fromtimestamp(data_dict["date_at"])
+        self.date_for = datetime.fromtimestamp(data_dict["date_for"])
+        self.name = data_dict["name"]
+        self.address = data_dict["address"]
+        return self
+
     def __str__(self):
         return f"{self.user} - for {self.date_for} at: {self.address}"

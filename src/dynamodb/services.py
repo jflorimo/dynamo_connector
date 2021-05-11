@@ -48,6 +48,10 @@ def convert_django_for_dynamo(instance):
     return dict_values
 
 
+def convert_dynamo_for_django(dict):
+    return dict
+
+
 # def format_attribute_definitions_list(model, field_list):
 #     attr_definition = []
 #     for field in field_list:

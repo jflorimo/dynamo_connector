@@ -80,7 +80,7 @@ class Connector:
         return response["Items"]
 
     def all(self):
-        return self.table.scan()
+        return self.table.scan()["Items"]
 
     def insert(self, instance):
         """

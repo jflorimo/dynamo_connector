@@ -31,9 +31,13 @@ class BookingViewSet(viewsets.ModelViewSet):
 
 
 class DynamoBooking(viewsets.ModelViewSet):
-    queryset = Connector(Booking).all()
+    queryset = None
     serializer_class = BookingSerializer
     permission_classes = [permissions.IsAuthenticated]
+
+    def get_queryset(self):
+        results = Connector(Booking).all()
+        return [Booking().__from_dynamo__(x) for x in results]
 
 
 class Debug(APIView):
@@ -47,9 +51,12 @@ class Debug(APIView):
         # dynamo.create_table(
         #     Booking, table_name="BookingUserByDateFor", partition_key="user", sort_key="date_for"
         # )
-        dynamo.delete([("user", 1), ("date_for", 1620728015)])
+        # dynamo.delete([("user", 1), ("date_for", 1620728015)])
+        elem = dynamo.select([("user", 1), ("date_for", 1620746545)])[0]
+
         response = {
             "table_list": [x.name for x in dynamo.db.tables.all()],
             "values": dynamo.all(),
+            "elem": elem,
         }
         return Response(response)
