@@ -8,9 +8,15 @@ class DynamoCompatibleModel(models.Model):
     class Meta:
         abstract = True
 
+    dynamo = "chips"
+
+    def __init__(self, *args, **kwargs):
+        super(DynamoCompatibleModel, self).__init__(*args, **kwargs)
+        print("init")
+
     def save(self, *args, **kwargs):
         super().save(*args, **kwargs)
-        Connector().insert("BookingUserByDateFor", self)
+        Connector().insert(self.table_name, self)
 
 
 class Booking(DynamoCompatibleModel):

@@ -14,3 +14,8 @@ class BookingSerializer(serializers.ModelSerializer):
     class Meta:
         model = Booking
         fields = ["user", "date_at", "date_for", "address", "name"]
+
+
+# class DynamoBookingSerializer(serializers.Serializer):
+#     user = serializers.IntegerField()
+#     date_at = serializers.

@@ -11,7 +11,7 @@ from .services import (
 
 
 class Connector:
-    def __init__(self):
+    def __init__(self, model=None):
         self.db = boto3.resource(
             "dynamodb",
             endpoint_url="http://db:8000",
@@ -20,16 +20,18 @@ class Connector:
             aws_secret_access_key=env.str("AWS_SECRET_ACCESS_KEY"),
             region_name=env.str("AWS_REGION"),
         )
-        # client = boto3.client(
-        #     "dynamodb",
-        #     region_name=env.str("AWS_REGION"),
-        #     aws_access_key_id=env.str("AWS_ACCESS_KEY_ID"),
-        #     aws_secret_access_key=env.str("AWS_SECRET_ACCESS_KEY"),
-        # )
+        self.model = model
+        if model.table_name:
+            self.table_name = model.table_name
+            self.table = self.db.Table(self.table_name)
+        else:
+            self.table_name = None
+            self.table = None
 
-    def create_table(self, model, *, table_name, partition_key, sort_key):
-
-        attribute_list = get_field_name_list(model)
+    def create_table(self):
+        partition_key = self.model.partition_key
+        sort_key = self.model.sort_key
+        attribute_list = get_field_name_list(self.model)
 
         # check partition_key exists in model
         if partition_key not in attribute_list or sort_key not in attribute_list:
@@ -37,7 +39,7 @@ class Connector:
 
         # attribute_definitions = format_attribute_definitions_list(model, attribute_list)
         table = self.db.create_table(
-            TableName=table_name,
+            TableName=self.table_name,
             KeySchema=[
                 {"AttributeName": partition_key, "KeyType": "HASH"},  # Partition key
                 {"AttributeName": sort_key, "KeyType": "RANGE"},  # Sort key
@@ -45,22 +47,22 @@ class Connector:
             AttributeDefinitions=[
                 {
                     "AttributeName": partition_key,
-                    "AttributeType": get_dynamodb_attribute_type(model, partition_key),
+                    "AttributeType": get_dynamodb_attribute_type(self.model, partition_key),
                 },
                 {
                     "AttributeName": sort_key,
-                    "AttributeType": get_dynamodb_attribute_type(model, partition_key),
+                    "AttributeType": get_dynamodb_attribute_type(self.model, partition_key),
                 },
             ],
             ProvisionedThroughput={"ReadCapacityUnits": 10, "WriteCapacityUnits": 10},
         )
         return table
 
-    def select(self, table_name, key_tuple_list=None):
+    def select(self, key_tuple_list=None):
         """
-        :param key_tuple_list: key and values list [(key, value), ]  used for sort
+        :param key_tuple_list: key and values list [(key, value), ]
         """
-        table = self.db.Table(table_name)
+        table = self.table
         if not key_tuple_list:
             return {}
 
@@ -75,20 +77,29 @@ class Connector:
         response = table.query(KeyConditionExpression=expr)
         return response["Items"]
 
-    def select_all(self, table_name):
-        return self.db.Table(table_name).scan()
+    def all(self):
+        return self.table.scan()
 
-    def insert(self, table_name, instance):
-        table = self.db.Table(table_name)
+    def insert(self, instance):
+        """
+        :param instance is Django model instance
+        """
+        table = self.table
         data = model_to_dict(instance)
         data = convert_all_values_for_dynamo(data)
         return table.put_item(Item={**data})
 
-    def update(self, table_name, instance):
-        return self.insert(table_name, instance)
+    def update(self, instance):
+        """
+        :param instance is Django model instance
+        """
+        return self.insert(instance)
 
-    def delete(self, table_name, key_tuple_list=None):
-        table = self.db.Table(table_name)
+    def delete(self, key_tuple_list=None):
+        """
+        :param key_tuple_list: key and values list [(key, value), ]
+        """
+        table = self.table
         if not key_tuple_list:
             return
         return table.delete_item(Key=dict(key_tuple_list))

@@ -15,7 +15,7 @@ class UserViewSet(viewsets.ModelViewSet):
     API endpoint that allows users to be viewed or edited.
     """
 
-    queryset = User.objects.all().order_by("-date_joined")
+    queryset = User.objects.all()
     serializer_class = UserSerializer
     permission_classes = [permissions.IsAuthenticated]
 
@@ -25,7 +25,13 @@ class BookingViewSet(viewsets.ModelViewSet):
     API endpoint that allows groups to be viewed or edited.
     """
 
-    queryset = Booking.objects.all().order_by("-date_for")
+    queryset = Booking.objects.all()
+    serializer_class = BookingSerializer
+    permission_classes = [permissions.IsAuthenticated]
+
+
+class DynamoBooking(viewsets.ModelViewSet):
+    queryset = Connector(Booking).all()
     serializer_class = BookingSerializer
     permission_classes = [permissions.IsAuthenticated]
 
@@ -34,17 +40,16 @@ class Debug(APIView):
     permission_classes = []
 
     def get(self, request, format=None):
-        dynamo = Connector()
+        dynamo = Connector(Booking)
         # booking_by_user = dynamo.create_table(
         #     Booking, table_name="BookingIdByUser", partition_key="id", sort_key="user"
         # )
         # dynamo.create_table(
         #     Booking, table_name="BookingUserByDateFor", partition_key="user", sort_key="date_for"
         # )
-        dynamo.delete("BookingUserByDateFor", [("user", 1), ("date_for", 1620728015)])
+        dynamo.delete([("user", 1), ("date_for", 1620728015)])
         response = {
             "table_list": [x.name for x in dynamo.db.tables.all()],
-            "values": dynamo.select_all("BookingUserByDateFor"),
+            "values": dynamo.all(),
         }
-
         return Response(response)
