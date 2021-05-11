@@ -38,5 +38,10 @@ class Debug(APIView):
         # booking_by_user = dynamo.create_table(
         #     Booking, table_name="BookingByUser", partition_key="id", sort_key="user"
         # )
-        response = {"table_list": [x.name for x in dynamo.db.tables.all()]}
+        select_all = dynamo.select("BookingByUser", [("id", 11), ("user", 1)])
+        response = {
+            "table_list": [x.name for x in dynamo.db.tables.all()],
+            "values": select_all,
+        }
+
         return Response(response)

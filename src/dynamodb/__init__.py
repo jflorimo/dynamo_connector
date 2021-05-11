@@ -1,4 +1,5 @@
 import boto3
+from boto3.dynamodb.conditions import Key
 from django.forms.models import model_to_dict
 
 from project.settings import env
@@ -55,8 +56,27 @@ class Connector:
         )
         return table
 
-    def select(self):
-        return
+    def select(self, table_name, key_tuple_list=None):
+        """
+        :param key_tuple_list: key and values list [(key, value), ]  used for sort
+        """
+        table = self.db.Table(table_name)
+        if not key_tuple_list:
+            return {}
+
+        key, value = key_tuple_list.pop(0)  # set first key condition expression
+        expr = Key(key).eq(value)
+        for (
+            key,
+            value,
+        ) in key_tuple_list:  # if remaining key conditions expressions add them
+            expr = expr & Key(key).eq(value)
+
+        response = table.query(KeyConditionExpression=expr)
+        return response["Items"]
+
+    def select_all(self, table_name):
+        return self.db.Table(table_name).scan()
 
     def insert(self, table_name, instance):
         table = self.db.Table(table_name)
