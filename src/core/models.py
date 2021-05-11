@@ -2,11 +2,18 @@ from datetime import datetime
 from django.contrib.auth.models import User
 from django.db import models
 from dynamodb import Connector
-from dynamodb.services import convert_all_values_for_dynamo
-import copy as c
 
 
-class Booking(models.Model):
+class DynamoCompatibleModel(models.Model):
+    class Meta:
+        abstract = True
+
+    def save(self, *args, **kwargs):
+        super().save(*args, **kwargs)
+        Connector().insert("BookingUserByDateFor", self)
+
+
+class Booking(DynamoCompatibleModel):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     date_at = models.DateTimeField(default=datetime.now)  # booked at
     date_for = models.DateTimeField(default=datetime.now)  # booked for
@@ -21,6 +28,4 @@ class Booking(models.Model):
     def __str__(self):
         return f"{self.user} - for {self.date_for} at: {self.address}"
 
-    def save(self, *args, **kwargs):
-        super().save(*args, **kwargs)
-        Connector().db.insert("BookingUserByDateFor", self)
+
