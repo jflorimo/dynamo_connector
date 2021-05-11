@@ -81,7 +81,7 @@ class Connector:
 
     def get(self, key_tuple_list=None):
         res = self.select(key_tuple_list)
-        return None if not res else self.select(key_tuple_list)[0]
+        return None if not res else res[0]
 
     def all(self):
         return self.table.scan()["Items"]

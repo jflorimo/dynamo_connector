@@ -50,7 +50,7 @@ class Debug(APIView):
         #     Booking, table_name="BookingUserByDateFor", partition_key="user", sort_key="date_for"
         # )
         # dynamo.delete([("user", 1), ("date_for", 1620728015)])
-        elem = dynamo.select([("user", 1), ("date_for", 1620746545)])[0]
+        elem = dynamo.get([("user", 1), ("date_for", 1620746545)])
 
         response = {
             "table_list": [x.name for x in dynamo.db.tables.all()],

@@ -5,7 +5,7 @@ from ..models import Booking
 from dynamodb import Connector
 
 
-def create_dynamo_models():
+def create_dynamo_models(apps, schema_editor):
     Connector(Booking).create_table()
 
 
