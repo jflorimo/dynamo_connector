@@ -75,6 +75,12 @@ class DynamoBooking(DynamoViewset):
     permission_classes = []
 ```
 
+## 4. urls to test dynamo Connector
+```python
+"dynamo/booking/" # RETRIEVE_LIST, UPDATE
+"dynamo/booking/<int:pk>/" # RETRIEVE_GET, PUT, PATCH, DELETE
+```
+
 
 
 
