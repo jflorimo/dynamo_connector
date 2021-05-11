@@ -82,11 +82,13 @@ class Connector:
         table = self.db.Table(table_name)
         data = model_to_dict(instance)
         data = convert_all_values_for_dynamo(data)
-        response = table.put_item(Item={**data})
-        return response
+        return table.put_item(Item={**data})
 
-    def update(self):
-        return
+    def update(self, table_name, instance):
+        return self.insert(table_name, instance)
 
-    def delete(self):
-        return
+    def delete(self, table_name, key_tuple_list=None):
+        table = self.db.Table(table_name)
+        if not key_tuple_list:
+            return
+        return table.delete_item(Key=dict(key_tuple_list))

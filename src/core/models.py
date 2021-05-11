@@ -14,21 +14,13 @@ class Booking(models.Model):
     name = models.CharField(max_length=255)
 
     # dynamo db
-    partition_key = "id"
-    sort_key = "user"
-    table_name = "BookingByUser"
+    partition_key = "user"
+    sort_key = "date_for"
+    table_name = "BookingUserByDateFor"
 
     def __str__(self):
         return f"{self.user} - for {self.date_for} at: {self.address}"
 
     def save(self, *args, **kwargs):
-        db = Connector()
-
-        if self.pk is not None:
-            print(f"UPDATE BOOKING: {self.__dict__}")
-            # TODO update here
-            super().save(*args, **kwargs)
-        else:
-            super().save(*args, **kwargs)
-            print(f"CREATE BOOKING: {self.__dict__}")
-            insert = db.insert("BookingByUser", self)
+        super().save(*args, **kwargs)
+        Connector().db.insert("BookingUserByDateFor", self)
