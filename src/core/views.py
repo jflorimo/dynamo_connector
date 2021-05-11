@@ -18,22 +18,22 @@ class UserViewSet(viewsets.ModelViewSet):
 
     queryset = User.objects.all()
     serializer_class = UserSerializer
-    permission_classes = [permissions.IsAuthenticated]
+    permission_classes = []
 
 
 class BookingViewSet(viewsets.ModelViewSet):
     """
-    API endpoint that allows groups to be viewed or edited.
+    API endpoint that allows Booking to be viewed or edited.
     """
 
     queryset = Booking.objects.all()
     serializer_class = BookingSerializer
-    permission_classes = [permissions.IsAuthenticated]
+    permission_classes = []
 
 
 class DynamoBooking(DynamoViewset):
     queryset = None
-    model_class = Booking
+    model_class = Booking  # needed to use DynamoViewset
     serializer_class = BookingSerializer
     permission_classes = []
 

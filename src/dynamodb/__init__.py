@@ -80,7 +80,8 @@ class Connector:
         return response["Items"]
 
     def get(self, key_tuple_list=None):
-        return self.select(key_tuple_list)[0]
+        res = self.select(key_tuple_list)
+        return None if not res else self.select(key_tuple_list)[0]
 
     def all(self):
         return self.table.scan()["Items"]

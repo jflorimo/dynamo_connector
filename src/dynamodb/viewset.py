@@ -26,7 +26,10 @@ class DynamoViewset(viewsets.ModelViewSet):
             kwargs.get("pk")
         )
         res = Connector(self.model_class).get(key_list)
-        return Response(res, status=status.HTTP_200_OK)
+        if res:
+            return Response(res, status=status.HTTP_200_OK)
+        else:
+            return Response(status=status.HTTP_404_NOT_FOUND)
 
     def update(self, request, *args, **kwargs):
         key_list = self.model_class().__convert_id_to_dynamo_key_list__(
@@ -40,3 +43,10 @@ class DynamoViewset(viewsets.ModelViewSet):
 
     def partial_update(self, request, *args, **kwargs):
         return self.update(request, *args, **kwargs)
+
+    def destroy(self, request, *args, **kwargs):
+        key_list = self.model_class().__convert_id_to_dynamo_key_list__(
+            kwargs.get("pk")
+        )
+        Connector(self.model_class).delete(key_list)
+        return Response(status=status.HTTP_204_NO_CONTENT)
