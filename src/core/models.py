@@ -10,7 +10,6 @@ class DynamoCompatibleModel(models.Model):
 
     def __init__(self, *args, **kwargs):
         super(DynamoCompatibleModel, self).__init__(*args, **kwargs)
-        print("DynamoCompatibleModel __init__")
 
     def save(self, *args, **kwargs):
         super().save(*args, **kwargs)

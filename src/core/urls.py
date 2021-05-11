@@ -18,7 +18,7 @@ booking_highlight = views.BookingViewSet.as_view(
 )
 
 # Dynamo Booking
-dynamo_booking_list = views.DynamoBooking.as_view({"get": "list"})
+dynamo_booking_list = views.DynamoBooking.as_view({"get": "list", "post": "create"})
 
 
 urlpatterns = [

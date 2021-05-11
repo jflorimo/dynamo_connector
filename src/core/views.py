@@ -1,9 +1,9 @@
 from django.contrib.auth.models import User
-from rest_framework import viewsets
-from rest_framework import permissions
+from rest_framework import viewsets, permissions, status
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from dynamodb import Connector
+from dynamodb.viewset import DynamoViewset
 
 
 from .models import Booking
@@ -30,14 +30,11 @@ class BookingViewSet(viewsets.ModelViewSet):
     permission_classes = [permissions.IsAuthenticated]
 
 
-class DynamoBooking(viewsets.ModelViewSet):
+class DynamoBooking(DynamoViewset):
     queryset = None
+    model_class = Booking
     serializer_class = BookingSerializer
     permission_classes = [permissions.IsAuthenticated]
-
-    def get_queryset(self):
-        results = Connector(Booking).all()
-        return [Booking().__from_dynamo__(x) for x in results]
 
 
 class Debug(APIView):
