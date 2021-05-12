@@ -5,14 +5,6 @@ Explore posibilities to use dynamodb with django
 just run : 
 ```./manage.sh run```
 
-## tips
-run django cmd: ```./manage.sh run makemigrations```
-
-display django logs: ```./manage.sh logs --tail=100 django```
-
-run black: ```./manage.sh fmt```
-
-
 ## How to
 
 ## 1. models
@@ -81,6 +73,11 @@ class DynamoBooking(DynamoViewset):
 "dynamo/booking/<int:pk>/" # RETRIEVE_GET, PUT, PATCH, DELETE
 ```
 
+## tips
+run django cmd: ```./manage.sh run makemigrations```
 
+display django logs: ```./manage.sh logs --tail=100 django```
+
+run black: ```./manage.sh fmt```
 
 
