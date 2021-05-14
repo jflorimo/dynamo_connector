@@ -10,7 +10,7 @@ just run :
 ## 1. models
 
 To use a django model with Dynamodb your model must inherit from ```DynamoCompatibleModel``` 
-and you must set ```table_name```, ```partition_key``` and ```sort_key``` attributes to your model.
+and you must set ```table_name```, ```partition_key```, ```sort_key``` and ```dynamo = Connector()``` attributes to your model.
 
 To facilitate the use of django viewset we needed to add two method to the model_class
 
@@ -31,6 +31,7 @@ class Booking(DynamoCompatibleModel):
     partition_key = "user"
     sort_key = "date_at"
     table_name = "BookingUserByDateAt"
+    dynamo = Connector()
     
     def __from_dynamo__(self, data_dict):
       ...
@@ -41,17 +42,17 @@ class Booking(DynamoCompatibleModel):
 ```
 
 ## 2. queries
-To query dynamodb database you must use the *Connector* object with the associated Django model class
+To query dynamodb database you must use the *Connector* object qttribute of your Django model class
 
 example:
 ```python
-Connector(Booking).create_table()
-Connector(Booking).select(key_tuple_list) # with key_tuple_list = [(key, value), ]
-Connector(Booking).get(key_tuple_list) # with key_tuple_list = [(parition_key, value), (sort_key, value)]
-Connector(Booking).all()
-Connector(Booking).insert(instance) # with instance = Django model instance
-Connector(Booking).update(instance) # with instance = Django model instance
-Connector(Booking).delete(key_tuple_list) # with key_tuple_list = [(parition_key, value), (sort_key, value)]
+Booking.dynamo.create_table()
+Booking.dynamo.select(key_tuple_list) # with key_tuple_list = [(key, value), ]
+Booking.dynamo.get(key_tuple_list) # with key_tuple_list = [(parition_key, value), (sort_key, value)]
+Booking.dynamo.all()
+Booking.dynamo.insert(instance) # with instance = Django model instance
+Booking.dynamo.update(instance) # with instance = Django model instance
+Booking.dynamo.delete(key_tuple_list) # with key_tuple_list = [(parition_key, value), (sort_key, value)]
 ```
 
 ## 3. viewsets.ModelViewSet
