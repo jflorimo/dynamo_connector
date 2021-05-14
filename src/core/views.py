@@ -1,9 +1,7 @@
 from django.contrib.auth.models import User
-from django.shortcuts import get_object_or_404
-from rest_framework import viewsets, permissions, status
+from rest_framework import viewsets
 from rest_framework.views import APIView
 from rest_framework.response import Response
-from dynamodb import Connector
 from dynamodb.viewset import DynamoViewset
 
 
@@ -42,11 +40,12 @@ class Debug(APIView):
     permission_classes = []
 
     def get(self, request, format=None):
-        dynamo = Connector(Booking)
-        elem = dynamo.get([("user", 1), ("date_for", 1620746545)])
+        dynamo = Booking.dynamo
+        # elem = dynamo.get([("user", 1), ("date_for", 1620746545)])
         response = {
             "table_list": [x.name for x in dynamo.db.tables.all()],
-            "values": dynamo.all(),
-            "elem": elem,
+            # "values": dynamo.all(),
+            "elem": Booking.dynamo.all(),
         }
+        Booking.dynamo.all()
         return Response(response)

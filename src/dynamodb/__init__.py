@@ -10,7 +10,13 @@ from .services import (
 
 
 class Connector:
-    def __init__(self, model_class=None):
+    def __get__(self, obj, owner):
+        self.model = owner
+        self.table_name = owner.table_name
+        self.table = self.db.Table(self.table_name)
+        return self
+
+    def __init__(self):
         self.db = boto3.resource(
             "dynamodb",
             endpoint_url="http://db:8000",
@@ -19,13 +25,6 @@ class Connector:
             aws_secret_access_key=env.str("AWS_SECRET_ACCESS_KEY"),
             region_name=env.str("AWS_REGION"),
         )
-        self.model = model_class
-        if model_class.table_name:
-            self.table_name = model_class.table_name
-            self.table = self.db.Table(self.table_name)
-        else:
-            self.table_name = None
-            self.table = None
 
     def create_table(self):
         partition_key = self.model.partition_key
@@ -84,6 +83,7 @@ class Connector:
         return None if not res else res[0]
 
     def all(self):
+        print()
         return self.table.scan()["Items"]
 
     def insert(self, instance):

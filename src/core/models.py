@@ -14,7 +14,7 @@ class DynamoCompatibleModel(models.Model):
 
     def save(self, *args, **kwargs):
         super().save(*args, **kwargs)
-        Connector(self.__class__).insert(self)
+        self.__class__.dynamo.insert(self)
 
 
 class Booking(DynamoCompatibleModel):
@@ -28,6 +28,7 @@ class Booking(DynamoCompatibleModel):
     partition_key = "user"
     sort_key = "date_for"
     table_name = "BookingUserByDateFor"
+    dynamo = Connector()
 
     def __from_dynamo__(self, data_dict):
         """
